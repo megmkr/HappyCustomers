@@ -80,7 +80,7 @@ python src/main.py --mode train
 2. Evaluate model performance
 
 ```bash
-python src/main.py --mode load
+python src/main.py --mode evaluate
 ```
 
 3. Generate visualizations
