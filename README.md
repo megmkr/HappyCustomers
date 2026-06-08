@@ -1,4 +1,5 @@
 # HappyCustomers
+
 This project aims to take customer feedback and create a predictive model, labeling a customer as "unhappy" or "happy" based on 6 features:
 
 1. my order was delivered on time
@@ -10,15 +11,80 @@ This project aims to take customer feedback and create a predictive model, label
 
 These features are rated 1 to 5 (5 = Agree, 1 = Disagree).
 
+## Running the Project
 
-# How to Run
-The main file will be in train.py. 
-The output will show the f1 score for each model:
-1. Logistic Regression
-2. Gaussian NB Classifier
-3. Random Forest Classifier
-4. Gradient Boost Classifier
-5. K-Nearest Neighbors Classifier
-6. Support Vector Classifier
-7. XGBoost Classifier
-8. Decision Tree Classifier
+This project uses a command-line interface to train models, evaluate saved models, and generate visualizations.
+
+### Train Models
+
+To train all machine learning models and save them to the `models/` directory:
+
+```bash
+python src/main.py --mode train
+```
+
+### Evaluate Models
+
+To load the saved models and display their F1 scores on the test dataset:
+
+```bash
+python src/main.py --mode evaluate
+```
+
+This command evaluates the following classifiers:
+
+- Logistic Regression
+- Gaussian Naive Bayes
+- Random Forest
+- Gradient Boosting
+- XGBoost
+- K-Nearest Neighbors (KNN)
+- Support Vector Classifier (SVC)
+- Decision Tree
+
+### Generate Visualizations
+
+To create and save project visualizations:
+
+```bash
+python src/main.py --mode plot
+```
+
+This command generates:
+
+- Correlation Matrix
+- Decision Tree Visualization
+- Decision Tree Feature Importance Plot
+- Decision Tree Confusion Matrix
+
+Generated figures are saved to the `reports/figures/` directory.
+
+### Prerequisites
+
+Install all required dependencies before running the project:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Project Workflow
+
+A typical workflow is:
+
+1. Train models
+
+```bash
+python src/main.py --mode train
+```
+
+2. Evaluate model performance
+
+```bash
+python src/main.py --mode load
+```
+
+3. Generate visualizations
+
+```bash
+python src/main.py --mode plot
+```

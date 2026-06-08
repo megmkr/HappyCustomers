@@ -7,9 +7,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import f1_score
-import matplotlib.pyplot as plt
-
 import pickle
 
 def train_lr(X_train, y_train):
@@ -17,6 +14,8 @@ def train_lr(X_train, y_train):
     lr = LogisticRegression(random_state=42) 
     lr.fit(X_train,y_train)
 
+    with open('models/lr_model.pkl', 'wb') as file:
+        pickle.dump(lr, file)
     return lr
 
 
@@ -25,6 +24,8 @@ def train_gnb(X_train, y_train):
     gnb = GaussianNB() 
     gnb.fit(X_train,y_train)
 
+    with open('models/gnb_model.pkl', 'wb') as file:
+        pickle.dump(gnb, file)
     return gnb
 
 def train_rf(X_train, y_train):
@@ -176,73 +177,63 @@ import config
 from dataset import load_data
 from dataset import separate_data
 from features import select_features
-from predict import load_model
-from predict import predict
+from predict import evaluate_models
 from plots import correlation_matrix
-from plots import plot_feature_importance
-from plots import plot_dt
-from plots import plot_confusion_matrix
+from plots import generate_dt_plots
+import argparse
+
 
 
 def main():
+
+    parser = argparse.ArgumentParser(description="Data Science Pipeline")
+
+    parser.add_argument(
+        "--mode", 
+        choices=["train", "evaluate", "plot"], 
+        required=True, 
+        help="train = train models, evaluate = evaluate saved models, plot = generate visualizations"
+    )
+    
+    args = parser.parse_args()
+
+    #Load Data
     df = load_data(config.DATA_PATH)
+    #Feature Selection
     X, y = select_features(df)
-    X_train, X_test, y_train, y_test = separate_data(X, y, config.TEST_SIZE, config.RANDOM_STATE)
+    #Make training/testing datasets
+    X_train, X_test, y_train, y_test = separate_data(X, 
+                                                     y, 
+                                                     config.TEST_SIZE, 
+                                                     config.RANDOM_STATE)
+
+    #Train Models
+    if args.mode == "train":
+        trainers = [
+            train_lr, #logistic regression
+            train_gnb, #gaussian nb
+            train_rf, #random forest
+            train_gb, #gradient boost
+            train_xgb, #xgboost
+            train_knn, #k nearest neighbors
+            train_support_vector, #support vector
+            train_decision_tree, #decision tree
+        ]
+        for trainer in trainers:
+            print(f"Training {trainer.__name__}...")
+            trainer(X_train, y_train)
     
-    #Save correlation Matrix
-    correlation_matrix(df)
+    #Load Models
+    elif args.mode == "evaluate":
+        results = evaluate_models(X_test, y_test, config.MODEL_PATHS)
+        print(results)
 
-    #Logistic Regression Classifier
-    model = train_lr(X_train, y_train)
-    y_pred = predict(model, X_test)
-    print("Test f1 Logistic Regression:", f1_score(y_test, y_pred))
+    #Plot models (found in models directory)
+    elif args.mode == "plot":
+        #Save correlation Matrix
+        correlation_matrix(df)
+        #Save decision tree feature importance, map, confusion matrix
+        generate_dt_plots(X, X_test, y_test, "models/dt_model.pkl")
 
-    #Gaussian NB Classifier
-    model = train_gnb(X_train, y_train)
-    y_pred = predict(model, X_test)
-    print("Test f1 Gaussian NB:", f1_score(y_test, y_pred))
-
-    #Random Forest Classifier
-    #model = train_rf(X_train, y_train)
-    model = load_model("models/rf_model.pkl")
-    y_pred = predict(model, X_test)
-    print("Test f1 Random Forest Classifier:", f1_score(y_test, y_pred))
-
-    #Gradient Boosting Classifier
-    #model = train_gb(X_train, y_train)
-    model = load_model("models/gb_model.pkl")
-    y_pred = predict(model, X_test)
-    print("Test f1 Gradient Boosting:", f1_score(y_test, y_pred))
-
-    #XGBoost Classifier
-    #model = train_xgb(X_train, y_train)
-    model = load_model("models/xgb_model.pkl")
-    y_pred = predict(model, X_test)
-    print("Test f1 XGBoost:", f1_score(y_test, y_pred))
-
-    #KNN Classifier
-    #model = train_knn(X_train, y_train)
-    model = load_model("models/knn_model.pkl")
-    y_pred = predict(model, X_test)
-    print("Test f1 KNN:", f1_score(y_test, y_pred))
-
-    #Support Vector Classifier
-    #model = train_support_vector(X_train, y_train)
-    model = load_model("models/svc_model.pkl")
-    y_pred = predict(model, X_test)
-    print("Test f1 Support Vector Classifier:", f1_score(y_test, y_pred))
-    
-    #Decision Tree
-    #model = train_decision_tree(X_train, y_train)
-    model = load_model("models/dt_model.pkl")
-    y_pred = predict(model, X_test)
-    print("Test f1 Decision Tree:", f1_score(y_test, y_pred))
-
-    #Plot decision tree feature importance (found in figures folder)
-    plot_feature_importance(X, model, "DecisionTreeFeatureImportance")
-    #Plot decision tree map
-    plot_dt(X, model, "DecisionTree")
-    #Plot decision tree confusion matrix
-    plot_confusion_matrix(y_test, y_pred, model, "DecisionTree")
 if __name__ == "__main__":
     main()

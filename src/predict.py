@@ -1,4 +1,7 @@
 import pickle
+import pandas as pd
+from sklearn.metrics import f1_score
+
 
 
 def load_model(path):
@@ -9,8 +12,19 @@ def load_model(path):
     return model
 
 
-def predict(model, X):
-
+def predict(model_path, X):
+    model = load_model(model_path)
     return model.predict(X)
 
+def evaluate_models(X_test, y_test, models):
+    results = []
 
+    for name, model_path in models.items():
+        y_pred = predict(model_path, X_test)
+
+        results.append({
+            "model": name,
+            "f1_score": f1_score(y_test, y_pred)
+        })
+
+    return pd.DataFrame(results)
