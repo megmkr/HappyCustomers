@@ -11,4 +11,14 @@ This project aims to take customer feedback and create a predictive model, label
 These features are rated 1 to 5 (5 = Agree, 1 = Disagree).
 
 
-
+# How to Run
+The main file will be in train.py. 
+The output will show the f1 score for each model:
+1. Logistic Regression
+2. Gaussian NB Classifier
+3. Random Forest Classifier
+4. Gradient Boost Classifier
+5. K-Nearest Neighbors Classifier
+6. Support Vector Classifier
+7. XGBoost Classifier
+8. Decision Tree Classifier
